@@ -98,7 +98,7 @@ Os sete testes estruturais locais foram aprovados. A avaliação real foi execut
 - Experimento final: `bug-to-user-story-v2-final-2e490087`, com 15 execuções, 75 feedbacks de métricas e nenhum erro.
 - [Avaliação final no LangSmith](https://smith.langchain.com/o/7af4f264-d9d4-54d8-ba0f-372f3126193c/datasets/fb6b2af1-aa46-41fb-9195-a0cabff00fc6/compare?selectedSessions=8cac1bc9-ab48-4938-813d-bce978be9971)
 - [Prompt público no LangSmith](https://smith.langchain.com/hub/arlindonatal/bug_to_user_story_v2)
-- [Dashboard do projeto no LangSmith](https://smith.langchain.com/projects/prompt-optimization-arlindonatal)
+- [Dashboard do projeto no LangSmith (requer autenticação)](https://smith.langchain.com/o/7af4f264-d9d4-54d8-ba0f-372f3126193c/projects/p/1dc6c929-fffa-4dae-a361-2e160887c109)
 
 ### Evidências visuais
 
