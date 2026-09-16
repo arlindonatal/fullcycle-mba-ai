@@ -1,0 +1,9 @@
+# Copy the relevant entries to your Codex configuration when local MCP servers are desired.
+# No secrets are stored in this file.
+
+[mcp_servers.postgres]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-postgres", "postgresql://streamtube:streamtube@localhost/streamtube"]
+
+# Context7 is configured by the Codex desktop integration in this workspace.
+# Use it to consult installed library documentation before implementation.
