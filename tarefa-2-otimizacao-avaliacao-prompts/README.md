@@ -90,12 +90,14 @@ Os sete testes estruturais locais foram aprovados. A avaliação real foi execut
 | Prompt | Helpfulness | Correctness | F1-Score | Clarity | Precision | Status |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
 | `leonanluppi/bug_to_user_story_v1` | 0,8617 | 0,8372 | 0,7798 | 0,8287 | 0,8947 | Reprovado |
-| `bug_to_user_story_v2` | 0,91 | 0,89 | 0,84 | 0,89 | 0,93 | **Aprovado** |
+| `arlindonatal/bug_to_user_story_v2` | 0,9080 | 0,8947 | 0,8527 | 0,8793 | 0,9367 | **Aprovado** |
 
 - Média geral v1: **0,8404**, reprovado porque o F1-Score ficou abaixo de 0,8.
-- Média geral v2: **0,8904**, com todas as cinco métricas acima de 0,8.
+- Média geral v2: **0,8943**, com todas as cinco métricas acima de 0,8.
 - Dataset no LangSmith: `prompt-optimization-arlindonatal-eval`, com 15 exemplos.
-- Tracing: 91 runs na avaliação v2, incluindo 15 execuções completas do prompt.
+- Experimento final: `bug-to-user-story-v2-final-2e490087`, com 15 execuções, 75 feedbacks de métricas e nenhum erro.
+- [Avaliação final no LangSmith](https://smith.langchain.com/o/7af4f264-d9d4-54d8-ba0f-372f3126193c/datasets/fb6b2af1-aa46-41fb-9195-a0cabff00fc6/compare?selectedSessions=8cac1bc9-ab48-4938-813d-bce978be9971)
+- [Prompt público no LangSmith](https://smith.langchain.com/hub/arlindonatal/bug_to_user_story_v2)
 - [Dashboard do projeto no LangSmith](https://smith.langchain.com/projects/prompt-optimization-arlindonatal)
 - Evidências visuais serão mantidas em `screenshots/`.
 

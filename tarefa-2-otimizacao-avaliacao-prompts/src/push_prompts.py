@@ -72,6 +72,19 @@ def push_prompt_to_langsmith(prompt_name: str, prompt_data: dict) -> bool:
             ),
         )
     except Exception as error:
+        if "nothing to commit" in str(error).lower():
+            client.update_prompt(
+                full_name,
+                is_public=True,
+                description=prompt_data["description"],
+                readme="Técnicas aplicadas: " + ", ".join(techniques),
+                tags=prompt_data.get("tags", []) + techniques,
+            )
+            url = client.push_prompt(full_name)
+            print(f"✓ Prompt já estava atualizado: {full_name}")
+            print(f"✓ URL: {url}")
+            return True
+
         print(f"❌ Erro ao publicar {full_name}: {error}")
         return False
 
