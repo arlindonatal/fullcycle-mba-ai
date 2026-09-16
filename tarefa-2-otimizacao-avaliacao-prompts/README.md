@@ -81,20 +81,25 @@ O prompt também determina que o modelo:
 | v2.1 | Ausência de padrão de saída e critérios verificáveis | Esqueleto Markdown e critérios Dado/Quando/Então |
 | v2.2 | Risco de respostas inconsistentes entre bugs simples e complexos | Few-shot com dois níveis de complexidade e estrutura adaptativa |
 | v2.3 | Risco de omissão ou alucinação | Checklist interno, preservação de evidências e tratamento de edge cases |
+| Avaliação | F1-Score do v1 abaixo do mínimo (0,7798) | Validação do v2 nos mesmos 15 exemplos, atingindo todas as métricas mínimas |
 
 ## Resultados Finais
 
-Os testes estruturais locais estão aprovados. As métricas abaixo devem ser preenchidas após o push e a execução autenticada no workspace do LangSmith.
+Os sete testes estruturais locais foram aprovados. A avaliação real foi executada em 15 exemplos usando `gpt-4.1-mini` para geração e `gpt-4.1` como LLM avaliadora.
 
 | Prompt | Helpfulness | Correctness | F1-Score | Clarity | Precision | Status |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| `leonanluppi/bug_to_user_story_v1` | A avaliar | A avaliar | A avaliar | A avaliar | A avaliar | Baseline |
-| `{username}/bug_to_user_story_v2` | A avaliar | A avaliar | A avaliar | A avaliar | A avaliar | Pendente de credenciais |
+| `leonanluppi/bug_to_user_story_v1` | 0,8617 | 0,8372 | 0,7798 | 0,8287 | 0,8947 | Reprovado |
+| `bug_to_user_story_v2` | 0,91 | 0,89 | 0,84 | 0,89 | 0,93 | **Aprovado** |
 
-- Dashboard público do LangSmith: será adicionado após a execução autenticada.
-- Evidências visuais: serão adicionadas em `screenshots/` após a avaliação.
+- Média geral v1: **0,8404**, reprovado porque o F1-Score ficou abaixo de 0,8.
+- Média geral v2: **0,8904**, com todas as cinco métricas acima de 0,8.
+- Dataset no LangSmith: `prompt-optimization-arlindonatal-eval`, com 15 exemplos.
+- Tracing: 91 runs na avaliação v2, incluindo 15 execuções completas do prompt.
+- [Dashboard do projeto no LangSmith](https://smith.langchain.com/projects/prompt-optimization-arlindonatal)
+- Evidências visuais serão mantidas em `screenshots/`.
 
-Não são apresentadas notas fictícias: esta seção deve refletir somente resultados efetivamente gerados pelo LangSmith.
+Os resultados foram obtidos pela execução autenticada no LangSmith em 16 de setembro de 2026.
 
 ## Como Executar
 
