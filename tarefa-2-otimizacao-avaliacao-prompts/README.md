@@ -99,7 +99,21 @@ Os sete testes estruturais locais foram aprovados. A avaliação real foi execut
 - [Avaliação final no LangSmith](https://smith.langchain.com/o/7af4f264-d9d4-54d8-ba0f-372f3126193c/datasets/fb6b2af1-aa46-41fb-9195-a0cabff00fc6/compare?selectedSessions=8cac1bc9-ab48-4938-813d-bce978be9971)
 - [Prompt público no LangSmith](https://smith.langchain.com/hub/arlindonatal/bug_to_user_story_v2)
 - [Dashboard do projeto no LangSmith](https://smith.langchain.com/projects/prompt-optimization-arlindonatal)
-- Evidências visuais serão mantidas em `screenshots/`.
+
+### Evidências visuais
+
+- [Prompt v2 público, versionado e com as técnicas aplicadas](screenshots/01-prompt-publico.png)
+- [Dataset e comparação dos experimentos com 15 execuções](screenshots/02-dataset-experimentos.png)
+- [Tracing das gerações e avaliações](screenshots/03-tracing-geral.png)
+- [Experimento final com os 15 exemplos e métricas aprovadas](screenshots/04-experimento-final-metricas.png)
+- [Experimento preliminar usado durante a otimização](screenshots/05-experimento-preliminar.png)
+- [Trace detalhado de um bug simples: botão do carrinho](screenshots/06-trace-simples-carrinho.png)
+- [Trace detalhado de um bug médio: webhook de pagamento](screenshots/07-trace-medio-webhook.png)
+- [Execuções dos avaliadores de qualidade](screenshots/08-execucoes-avaliadores.png)
+- [Trace detalhado de um bug complexo: input do checkout](screenshots/09-trace-complexo-checkout-input.png)
+- [Trace detalhado de um bug complexo: output do checkout](screenshots/10-trace-complexo-checkout-output.png)
+
+O experimento final é a fonte dos valores apresentados na tabela. A execução preliminar foi preservada apenas como evidência do processo iterativo de avaliação e otimização. Os traces detalhados contemplam exemplos simples, médios e complexos, conforme exigido pelo desafio.
 
 Os resultados foram obtidos pela execução autenticada no LangSmith em 16 de setembro de 2026.
 
