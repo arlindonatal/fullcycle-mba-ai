@@ -1,0 +1,1 @@
+"""E-commerce MVC application."""
