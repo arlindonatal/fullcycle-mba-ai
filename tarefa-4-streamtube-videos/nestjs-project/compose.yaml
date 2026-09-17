@@ -6,7 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     ports:
-      - 3001:3000
+      - 3000:3000
+    command: sh -c "npm run migration:run && npm run start:dev"
     volumes:
       - .:/home/node/app
     depends_on:
@@ -15,9 +16,9 @@ services:
       mailpit:
         condition: service_started
       redis:
-        condition: service_started
+        condition: service_healthy
       minio:
-        condition: service_started
+        condition: service_healthy
     environment:
       DB_HOST: db
       DB_PORT: 5432
@@ -27,12 +28,19 @@ services:
       JWT_SECRET: change-me-in-production
       JWT_REFRESH_SECRET: change-me-refresh-in-production
       S3_ENDPOINT: http://minio:9000
+      S3_PUBLIC_ENDPOINT: http://localhost:9002
       S3_REGION: us-east-1
       S3_ACCESS_KEY: minioadmin
       S3_SECRET_KEY: minioadmin
       S3_BUCKET: streamtube
       REDIS_HOST: redis
       REDIS_PORT: 6379
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:3000"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
 
   video-worker:
     build:
@@ -58,12 +66,14 @@ services:
       REDIS_PORT: 6379
       VIDEO_WORKER_ENABLED: 'true'
     depends_on:
+      nestjs-api:
+        condition: service_healthy
       db:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
       minio:
-        condition: service_started
+        condition: service_healthy
 
   db:
     image: postgres:17
@@ -73,6 +83,8 @@ services:
       - POSTGRES_USER=streamtube
       - POSTGRES_PASSWORD=streamtube
       - POSTGRES_DB=streamtube
+    volumes:
+      - ./docker/postgres/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U streamtube"]
       interval: 5s
@@ -89,6 +101,11 @@ services:
     image: redis:7-alpine
     ports:
       - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   minio:
     image: minio/minio:latest
@@ -96,11 +113,17 @@ services:
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_API_CORS_ALLOW_ORIGIN: http://localhost:3001
     ports:
       - "9002:9000"
       - "9003:9001"
     volumes:
       - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   minio-data:

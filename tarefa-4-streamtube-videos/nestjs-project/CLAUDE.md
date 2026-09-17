@@ -2,7 +2,7 @@
 
 ## Environment Startup Verification
 
-**Default behavior:** starting the environment means starting **only infrastructure services** (database, mail, etc.) — **never** start the NestJS application server unless the user explicitly asks to run/serve the project (e.g., "rode o projeto", "suba o servidor", "run the app").
+For Phase 03, `docker compose up -d` starts the complete backend stack: database, mail, Redis, MinIO, API and video worker. The API applies pending migrations before starting and the worker waits for the API health check.
 
 After starting infrastructure, always confirm the containers are up before proceeding:
 
@@ -14,7 +14,7 @@ Then verify each infrastructure service is actually ready to accept connections 
 
 - **PostgreSQL:** `docker compose exec db pg_isready -U streamtube` — expect `accepting connections`
 
-Only start the NestJS dev server (`npm run start:dev`) when the user **explicitly** asks to run the application — never as part of "start the environment".
+The Compose command owns the NestJS development server; do not start a second server manually.
 
 ## Development Environment
 
@@ -27,20 +27,20 @@ docker compose up -d
 # Install dependencies (first time only)
 docker compose exec nestjs-api npm install
 
-# Run the dev server (watch mode)
-docker compose exec nestjs-api npm run start:dev
+# API and worker are started automatically by Compose
 ```
 
 Services:
-- `nestjs-api` — NestJS API, port `3000`
-- `db` — PostgreSQL 17, port `5432`, database `streamtube`, user/password `streamtube`
-- `minio` — S3-compatible object storage, ports `9000`/`9001`
-- `redis` — BullMQ backing store, port `6379`
+- `nestjs-api` — NestJS API, host port `3000`
+- `db` — PostgreSQL 17, host port `5433`, databases `streamtube` and `streamtube_test`
+- `minio` — S3-compatible object storage, host ports `9002`/`9003`
+- `redis` — BullMQ backing store, host port `6380`
 - `video-worker` — separate FFmpeg/FFprobe consumer for `video-processing`
 
 ## Videos (Phase 03)
 
-- API endpoints create direct MinIO multipart uploads; video bytes never pass through NestJS. The declared limit is 10 GiB.
+- API endpoints create direct MinIO multipart uploads; video bytes never pass through NestJS. Both declared and stored sizes are checked against the 10 GiB limit.
+- Server operations use `S3_ENDPOINT=http://minio:9000`; client-facing presigned URLs use `S3_PUBLIC_ENDPOINT=http://localhost:9002` locally.
 - Video states are `DRAFT`, `PROCESSING`, `READY` and `ERROR`. A BullMQ job contains only the video ID.
 - The `video-worker` downloads the completed object temporarily, uses FFprobe for metadata and FFmpeg for a JPEG thumbnail, uploads it to MinIO and updates PostgreSQL.
 - Public routes are `GET /videos/:slug`, `/thumbnail`, `/stream` and `/download`. Streaming forwards a single `Range` request and returns partial content.
@@ -69,7 +69,6 @@ docker compose down
 ### Container-only commands (always prefix with `docker compose exec nestjs-api`)
 
 ```bash
-npm run start:dev                        # Dev server with hot-reload
 npm run build                            # Compile to dist/
 npm run start:prod                       # Run compiled build
 
@@ -94,7 +93,7 @@ curl http://localhost:3000
 
 ### Test execution
 
-Integration and e2e suites share a single test database. They **must** be run with `--runInBand`:
+Integration and e2e suites use the isolated `streamtube_test` database and isolated Redis databases. They **must** be run with `--runInBand`:
 
 ```bash
 docker compose exec nestjs-api npm test -- --runInBand

@@ -20,6 +20,8 @@ This file ports the repository's AI workflow from Claude Code to Codex.
 
 - Videos belong to a channel. They follow `DRAFT -> PROCESSING -> READY | ERROR`.
 - Uploads use S3-compatible MinIO multipart presigned URLs: the API never receives the video bytes, supporting objects up to 10 GB.
+- Containers use `http://minio:9000`; URLs returned to local clients use the configurable `S3_PUBLIC_ENDPOINT` (`http://localhost:9002` by default).
+- Multipart completion validates the stored object's real size before queueing.
 - BullMQ/Redis transports processing jobs to a dedicated worker container. FFprobe extracts metadata and FFmpeg makes a thumbnail.
 - The API serves byte ranges for streaming and exposes a download endpoint. Public identity uses an immutable, collision-resistant slug.
 

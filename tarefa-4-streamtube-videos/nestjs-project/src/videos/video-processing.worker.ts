@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   OnApplicationBootstrap,
   OnApplicationShutdown,
 } from '@nestjs/common';
@@ -25,6 +26,8 @@ export class VideoProcessingWorker
   implements OnApplicationBootstrap, OnApplicationShutdown
 {
   private worker: Worker<{ videoId: string }> | undefined;
+  private readonly logger = new Logger(VideoProcessingWorker.name);
+  private shuttingDown = false;
 
   constructor(
     private readonly dataSource: DataSource,
@@ -34,6 +37,11 @@ export class VideoProcessingWorker
 
   onApplicationBootstrap(): void {
     if (this.config.get<string>('VIDEO_WORKER_ENABLED') !== 'true') return;
+    this.start();
+  }
+
+  start(): void {
+    if (this.worker) return;
     this.worker = new Worker(
       VIDEO_PROCESSING_QUEUE,
       async (job) => {
@@ -44,13 +52,19 @@ export class VideoProcessingWorker
         connection: {
           host: this.config.get<string>('REDIS_HOST') ?? 'redis',
           port: this.config.get<number>('REDIS_PORT') ?? 6379,
+          db: this.config.get<number>('REDIS_DB') ?? 0,
         },
         concurrency: 1,
       },
     );
+    this.worker.on('error', (error) => {
+      if (!this.shuttingDown)
+        this.logger.error('Video processing worker error', error.stack);
+    });
   }
 
   async onApplicationShutdown(): Promise<void> {
+    this.shuttingDown = true;
     await this.worker?.close();
   }
 

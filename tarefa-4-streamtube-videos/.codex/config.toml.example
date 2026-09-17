@@ -5,5 +5,5 @@
 command = "npx"
 args = ["-y", "@modelcontextprotocol/server-postgres", "postgresql://streamtube:streamtube@localhost/streamtube"]
 
-# Context7 is configured by the Codex desktop integration in this workspace.
-# Use it to consult installed library documentation before implementation.
+[mcp_servers.context7]
+url = "https://mcp.context7.com/mcp"

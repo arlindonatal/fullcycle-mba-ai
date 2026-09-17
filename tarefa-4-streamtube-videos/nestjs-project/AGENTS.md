@@ -16,6 +16,8 @@ Integration and E2E tests share services and run serially. Test suffixes are con
 ## Videos phase
 
 - Object storage is MinIO through the AWS S3 client. Video bytes go directly from clients to MinIO with multipart presigned URLs.
+- Use `S3_ENDPOINT` for container-to-container access and `S3_PUBLIC_ENDPOINT` only for URLs returned to clients.
+- Tests use the isolated `streamtube_test` PostgreSQL database and isolated Redis databases; integration/E2E suites run serially.
 - BullMQ uses the `redis` Compose host. Only the `video-worker` process consumes jobs.
 - FFprobe/FFmpeg run only in the worker. Temporary files must be removed in a `finally` block.
 - Streaming accepts one valid `Range` header and returns `206` plus S3 object bytes; download returns `Content-Disposition: attachment`.
