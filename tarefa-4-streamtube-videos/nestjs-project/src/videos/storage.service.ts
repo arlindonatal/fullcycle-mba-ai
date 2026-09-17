@@ -8,6 +8,7 @@ import {
   GetObjectCommand,
   HeadBucketCommand,
   HeadObjectCommand,
+  DeleteObjectCommand,
   PutObjectCommand,
   S3Client,
   UploadPartCommand,
@@ -19,18 +20,26 @@ import type { Readable } from 'node:stream';
 @Injectable()
 export class StorageService implements OnModuleInit {
   private readonly client: S3Client;
+  private readonly signingClient: S3Client;
   private readonly bucket: string;
 
   constructor(config: ConfigService) {
     this.bucket = config.getOrThrow<string>('storage.bucket');
-    this.client = new S3Client({
-      endpoint: config.getOrThrow<string>('storage.endpoint'),
+    const clientOptions = {
       region: config.getOrThrow<string>('storage.region'),
       forcePathStyle: true,
       credentials: {
         accessKeyId: config.getOrThrow<string>('storage.accessKeyId'),
         secretAccessKey: config.getOrThrow<string>('storage.secretAccessKey'),
       },
+    };
+    this.client = new S3Client({
+      ...clientOptions,
+      endpoint: config.getOrThrow<string>('storage.endpoint'),
+    });
+    this.signingClient = new S3Client({
+      ...clientOptions,
+      endpoint: config.getOrThrow<string>('storage.publicEndpoint'),
     });
   }
 
@@ -58,7 +67,7 @@ export class StorageService implements OnModuleInit {
     partNumber: number,
   ): Promise<string> {
     return getSignedUrl(
-      this.client,
+      this.signingClient,
       new UploadPartCommand({
         Bucket: this.bucket,
         Key: key,
@@ -105,6 +114,12 @@ export class StorageService implements OnModuleInit {
     );
   }
 
+  deleteObject(key: string) {
+    return this.client.send(
+      new DeleteObjectCommand({ Bucket: this.bucket, Key: key }),
+    );
+  }
+
   getObject(key: string, range?: string) {
     return this.client.send(
       new GetObjectCommand({ Bucket: this.bucket, Key: key, Range: range }),
@@ -113,7 +128,7 @@ export class StorageService implements OnModuleInit {
 
   async presignGet(key: string): Promise<string> {
     return getSignedUrl(
-      this.client,
+      this.signingClient,
       new GetObjectCommand({ Bucket: this.bucket, Key: key }),
       { expiresIn: 3600 },
     );

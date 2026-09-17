@@ -35,12 +35,16 @@ describe('Database migrations (integration)', () => {
 
     await dataSource.initialize();
 
-    await Promise.all([
-      ...MANAGED_TABLES.map((table) =>
-        dataSource.query(`DROP TABLE IF EXISTS "${table}" CASCADE`),
-      ),
-      dataSource.query(`DROP TABLE IF EXISTS "migrations" CASCADE`),
-    ]);
+    for (const table of [
+      'videos',
+      'refresh_tokens',
+      'verification_tokens',
+      'channels',
+      'users',
+      'migrations',
+    ]) {
+      await dataSource.query(`DROP TABLE IF EXISTS "${table}" CASCADE`);
+    }
     await dataSource.query(
       'DROP TYPE IF EXISTS "verification_tokens_type_enum" CASCADE',
     );

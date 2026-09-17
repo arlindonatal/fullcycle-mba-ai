@@ -8,6 +8,7 @@ import {
   VideoNotOwnedException,
   VideoNotReadyException,
   VideoRangeInvalidException,
+  VideoSizeMismatchException,
   VideoTooLargeException,
   VideoUploadInvalidException,
 } from '../common/exceptions/domain.exception';
@@ -100,11 +101,46 @@ export class VideosService {
       dto.upload_id,
       dto.parts,
     );
+    const object = await this.storage.headObject(video.storage_key);
+    const actualSize = Number(object.ContentLength);
+    if (!Number.isSafeInteger(actualSize) || actualSize < 0) {
+      await this.rejectCompletedObject(
+        video,
+        'Storage returned an invalid size',
+      );
+      throw new VideoUploadInvalidException();
+    }
+    if (actualSize > this.maxBytes) {
+      await this.rejectCompletedObject(
+        video,
+        'Object exceeds the 10 GiB limit',
+      );
+      throw new VideoTooLargeException();
+    }
+    if (actualSize > Number(video.size_bytes)) {
+      await this.rejectCompletedObject(
+        video,
+        'Object is larger than its declared size',
+      );
+      throw new VideoSizeMismatchException();
+    }
+    video.size_bytes = String(actualSize);
     video.status = VideoStatus.PROCESSING;
     video.upload_id = null;
     await this.dataSource.getRepository(Video).save(video);
     await this.queue.enqueue(video.id);
     return video;
+  }
+
+  private async rejectCompletedObject(
+    video: Video,
+    message: string,
+  ): Promise<void> {
+    await this.storage.deleteObject(video.storage_key);
+    video.status = VideoStatus.ERROR;
+    video.upload_id = null;
+    video.error_message = message;
+    await this.dataSource.getRepository(Video).save(video);
   }
 
   async abortUpload(userId: string, id: string): Promise<void> {

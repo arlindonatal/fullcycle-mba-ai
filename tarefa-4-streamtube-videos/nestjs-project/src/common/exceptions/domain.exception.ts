@@ -77,6 +77,16 @@ export class VideoTooLargeException extends DomainException {
   }
 }
 
+export class VideoSizeMismatchException extends DomainException {
+  constructor() {
+    super(
+      'VIDEO_SIZE_MISMATCH',
+      400,
+      'Uploaded video is larger than the declared size',
+    );
+  }
+}
+
 export class VideoNotReadyException extends DomainException {
   constructor() {
     super('VIDEO_NOT_READY', 409, 'Video is not ready for delivery');

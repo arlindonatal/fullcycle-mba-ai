@@ -24,11 +24,12 @@
 | Action | Anonymous | Authenticated non-owner | Channel owner |
 |---|---:|---:|---:|
 | Start/complete/abort upload | no | no | yes |
-| Read READY video, thumbnail, stream, download | yes | yes | yes |
+| Read video metadata/status | yes | yes | yes |
+| Read READY thumbnail, stream and download | yes | yes | yes |
 
 ### Error Catalog
 
-`VIDEO_NOT_FOUND` (404), `VIDEO_NOT_OWNED` (403), `VIDEO_UPLOAD_INVALID` (409), `VIDEO_TOO_LARGE` (400), `VIDEO_NOT_READY` (409), `VIDEO_RANGE_INVALID` (416).
+`VIDEO_NOT_FOUND` (404), `VIDEO_NOT_OWNED` (403), `VIDEO_UPLOAD_INVALID` (409), `VIDEO_TOO_LARGE` (400), `VIDEO_SIZE_MISMATCH` (400), `VIDEO_NOT_READY` (409), `VIDEO_RANGE_INVALID` (416).
 
 ### Events / Messages
 
@@ -56,9 +57,43 @@ Add unique-slug detail, thumbnail, byte-range streaming and download endpoints.
 
 Add focused unit/integration/E2E coverage, update OpenAPI-related contracts and Codex instructions; run full DoD checks.
 
+### SI-03.6 — Client-reachable local presigned URLs
+
+Separate the S3 endpoint used by containers from the endpoint embedded in presigned URLs. Keep `http://minio:9000` for API/worker operations and use a configurable host-reachable local endpoint (default `http://localhost:9002`) for upload-part and thumbnail URLs. Configure MinIO CORS for direct browser uploads.
+
+**Tests:** unit coverage proves that signatures use the external endpoint while server operations keep using the internal endpoint.
+
+### SI-03.7 — Enforce the actual uploaded size
+
+After multipart completion, inspect the stored object with `HeadObject`. Reject and delete objects larger than 10 GiB or larger than the declared size, persist `ERROR`, clear the upload id, and never enqueue processing for invalid objects.
+
+**Tests:** unit coverage for valid completion, real oversize rejection and queue suppression.
+
+### SI-03.8 — Compose full-stack startup
+
+Make `nestjs-api` start the NestJS application automatically, add health checks and ensure PostgreSQL, Mailpit, Redis, MinIO, API and worker start together through `docker compose up`.
+
+**Tests:** Compose health/status verification and an HTTP health request from the host.
+
+### SI-03.9 — Real video integration and E2E coverage
+
+Add `*.integration-spec.ts` tests against real PostgreSQL, MinIO and Redis plus `*.e2e-spec.ts` HTTP coverage for authentication, draft creation, direct multipart upload, processing, unique URL, thumbnail, byte-range streaming and download. Use a tiny FFmpeg-generated fixture and the real worker.
+
+**Tests:** `npm run test:integration` and `npm run test:e2e` exercise the Phase 03 flow without replacing MinIO, Redis or PostgreSQL with mocks.
+
+### SI-03.10 — Workflow artifact reconciliation
+
+Record installed library versions and official/Context7 references, align every SI reference, make `validation.md` end in `status: clean`, and record status plus tests for every SI in `progress.md`. Keep Codex/Claude instructions consistent with runtime behavior.
+
+### SI-03.11 — Definition of Done and Git Flow closeout
+
+Run unit, integration and E2E suites, TypeScript and lint inside the container. Commit on `feature/task-4-compliance`, merge through `dev`, and then publish the integrated result to `main` as required by the course repository delivery.
+
 ## Dependency Map
 
 `SI-03.1 → SI-03.2 → SI-03.3 → SI-03.4 → SI-03.5`.
+
+Corrective chain: `SI-03.6 → SI-03.7 → SI-03.8 → SI-03.9 → SI-03.10 → SI-03.11`.
 
 ## Deliverables
 
